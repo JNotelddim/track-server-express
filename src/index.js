@@ -6,6 +6,7 @@ const credentials = require("./db.hide");
 const { email, password } = credentials;
 
 const authRoutes = require("./routes/authRoutes");
+const requireAuth = require("./middlewares/requireAuth");
 
 const app = express();
 app.use(bodyParser.json());
@@ -17,6 +18,7 @@ const mongoUri =
   ":" +
   password +
   "@cluster0-apuvb.mongodb.net/test?retryWrites=true&w=majority";
+
 mongoose.connect(mongoUri, {
   useNewUrlParser: true,
   useCreateIndex: true,
@@ -29,8 +31,8 @@ mongoose.connection.on("error", err => {
   console.error("Error connecting to mongo", err);
 });
 
-app.get("/", (req, res) => {
-  res.send("Hi there!");
+app.get("/", requireAuth, (req, res) => {
+  res.send(`Your email: ${req.user.email}`);
 });
 
 app.listen(3000, () => {
